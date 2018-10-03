@@ -1,66 +1,80 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, FlatList, Text, View, Image } from 'react-native';
 
-import { Card, CardItem, Thumbnail, Body, Left, Right, Button, Icon } from 'native-base'
+import { Card, CardItem, Thumbnail, Body, Left, Content, Spinner, Right, Button, Icon } from 'native-base'
 
 
-export default class CardComponent extends React.Component {
+export default class CardComponent extends React.Component { 
+
+    constructor(props){
+        super(props);
+        this.state = { isLoading: true, articles: []}
+        this.fetchNews = this.fetchNews.bind(this);
+    }
+
+    async getNews() {
+
+        const url = 'https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=589205a3e50e4f57ab6c56133f8fb08d';
+        let result = await fetch(url).then(response => response.json());
+        return result.articles;
+       
+    }
+
+    fetchNews() {
+        this.getNews()
+          .then(articles => this.setState({ articles, refreshing: false }))
+          .catch(() => this.setState({ refreshing: false }));
+    }
+    
+
+    componentDidMount(){
+        this.fetchNews();
+    }
 
     render() {
 
-        const images = {
+        let element = [];
 
-            "1": require('../assets/feed_images/1.jpg'),
-            "2": require('../assets/feed_images/2.jpg'),
-            "3": require('../assets/feed_images/2.jpg')
-
-        }
+        this.state.articles.map((item) => {
+            element.push(
+                <Card>
+                    <CardItem>
+                        <Left>
+                            <Thumbnail source={require('../assets/me.png')} />
+                            <Body>
+                                <Text>{ item.title }</Text>
+                                <Text note>Jan 15, 2018</Text>
+                            </Body>
+                        </Left>
+                    </CardItem>
+                    <CardItem cardBody>
+                        <Image source={{uri: item.urlToImage}}
+                            style={{ height: 200, width: null, flex: 1 }}
+                        />
+                    </CardItem>
+                    <CardItem>
+                        <Body>
+                            <Text>
+                                <Text style={{ fontWeight: '900' }}>
+                                    { this.author }
+                                </Text>
+                                    { this.description }
+                            </Text>
+                        </Body>
+                    </CardItem>
+                </Card>
+            );
+        });
 
         return (
-            <Card>
-                <CardItem>
-                    <Left>
-                        <Thumbnail source={require('../assets/me.png')} />
-                        <Body>
-                            <Text>Udin</Text>
-                            <Text note>Jan 15, 2018</Text>
-                        </Body>
-                    </Left>
-                </CardItem>
-                <CardItem cardBody>
-                    <Image source={images[this.props.imageSource]}
-                        style={{ height: 200, width: null, flex: 1 }}
-                     />
-                </CardItem>
-                <CardItem style={{ height: 45 }}>
-                    <Left>
-                        <Button transparent>
-                            <Icon name="ios-heart-outline" style={{ color: 'black' }} />
-                        </Button>
-                        <Button transparent>
-                            <Icon name="ios-chatbubbles-outline" style={{ color: 'black' }} />
-                        </Button>
-                        <Button transparent>
-                            <Icon name="ios-send-outline" style={{ color: 'black' }} />
-                        </Button>
-                    </Left>
-                </CardItem>
-                <CardItem style={{ height: 20 }}>
-                    <Text>{this.props.likes}</Text>
-                </CardItem>
-                <CardItem>
-                    <Body>
-                        <Text>
-                            <Text style={{ fontWeight: '900' }}>
-                                Udin 
-                            </Text>
-                                Build The UI of the Feed Page of Instagram App Using React Native, React Navigation, StackNavigator, TabNavigator, Expo.io and Native Base 
-                        </Text>
-                    </Body>
-                </CardItem>
-            </Card>
-
+            
+            <Content>
+                { element }
+            </Content>
+           
         );
+
+       
     }
 }
 

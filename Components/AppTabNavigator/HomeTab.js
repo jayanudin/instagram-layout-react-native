@@ -18,9 +18,7 @@ export default class HomeTab extends React.Component {
         return (
             <Container style={styles.container}>
                 <Content>
-                    <CardComponent imageSource="1" likes="101" />
-                    <CardComponent imageSource="2" likes="102" />
-                    <CardComponent imageSource="3" likes="103" />
+                    <CardComponent/>
                 </Content>
             </Container>
         );
